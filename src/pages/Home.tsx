@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Leaf, BarChart3, Database } from "lucide-react";
+import { ChevronRight, Leaf, BarChart3, Database, Layers } from "lucide-react";
 
 const Home = () => {
   const [scrollY, setScrollY] = useState(0);

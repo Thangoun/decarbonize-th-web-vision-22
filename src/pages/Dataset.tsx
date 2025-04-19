@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { 
@@ -39,7 +38,7 @@ import {
   Cell,
   Legend
 } from 'recharts';
-import { Database, Filter, CleaningDuster, AlertCircle, Info, Check, ArrowRight } from "lucide-react";
+import { Database, Filter, Brush, AlertCircle, Info, Check, ArrowRight } from "lucide-react";
 
 const Dataset = () => {
   const [showPreprocessing, setShowPreprocessing] = useState(false);
@@ -350,7 +349,7 @@ const Dataset = () => {
                   Original Dataset
                 </TabsTrigger>
                 <TabsTrigger value="cleaned" className="flex items-center">
-                  <CleaningDuster size={16} className="mr-2" />
+                  <Brush size={16} className="mr-2" />
                   Cleaned Dataset
                 </TabsTrigger>
               </TabsList>

@@ -1,4 +1,3 @@
-
 import React, { useRef } from 'react';
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -257,7 +256,7 @@ const Features = () => {
                         height={70}
                       />
                       <YAxis domain={[-1, 1]} />
-                      <Tooltip formatter={(value) => value.toFixed(2)} />
+                      <Tooltip formatter={(value) => (typeof value === 'number' ? value.toFixed(2) : String(value))} />
                       <Legend />
                       <Bar dataKey="value" fill="#22c55e">
                         {correlationData.map((entry, index) => (

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -463,7 +462,7 @@ const Demo = () => {
                               <XAxis dataKey="year" />
                               <YAxis domain={[260, 300]} label={{ value: 'CO₂ Emissions (MT)', angle: -90, position: 'insideLeft' }} />
                               <Tooltip 
-                                formatter={(value) => [`${value} MT`, 'Carbon Emissions']}
+                                formatter={(value) => (typeof value === 'number' ? value.toFixed(2) : value)}
                                 labelFormatter={(label) => `Year: ${label}`}
                               />
                               <Legend verticalAlign="top" height={36} />
@@ -531,7 +530,7 @@ const Demo = () => {
                                           }}
                                         />
                                         <Tooltip 
-                                          formatter={(value) => [`${value.toFixed(1)} MT`, 'Emissions']}
+                                          formatter={(value) => (typeof value === 'number' ? value.toFixed(2) : value)}
                                         />
                                         <Bar 
                                           dataKey="emissions" 
