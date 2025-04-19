@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -23,8 +24,9 @@ const Home = () => {
         <div 
           className="absolute inset-0 z-0 opacity-30"
           style={{
-            background: "url('data:image/svg+xml;utf8,<svg width=\"100\" height=\"100\" viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M50 30 L30 70 L70 70 Z\" fill=\"%2322c55e\" /></svg>')",
-            backgroundSize: "200px 200px"
+            background: "linear-gradient(90deg, hsla(139, 70%, 75%, 1) 0%, hsla(63, 90%, 76%, 1) 100%)",
+            backgroundSize: "200px 200px",
+            filter: "blur(100px)"
           }}
         />
         
