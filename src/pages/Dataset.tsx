@@ -184,7 +184,7 @@ const Dataset = () => {
           <h1 className="text-4xl font-bold text-green-800 mb-6">Dataset Overview</h1>
           <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-4">
             Our analysis utilizes the comprehensive Our World in Data CO₂ emissions dataset, 
-            covering the period from 1950 to present.
+            covering the period from 1750 to 2023 (data analyzed from 1950 onward due to missingness).
           </p>
           <a
             href="https://ourworldindata.org/co2-dataset-sources"
@@ -226,21 +226,36 @@ const Dataset = () => {
             </CardContent>
           </Card>
 
-          {/* Thailand Trend Dashboard */}
-          <motion.div {...fadeIn}>
-            <ThailandTrendDashboard />
-          </motion.div>
+          {/* Responsive grid for Dashboard + Missing Ratio */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
+            <motion.div {...fadeIn} className="col-span-1">
+              {/* Thailand Trend Dashboard: ensure card/content does not overflow */}
+              <div className="h-full flex flex-col">
+                <ThailandTrendDashboard />
+              </div>
+            </motion.div>
 
-          {/* Yearly Missing Ratio */}
-          <motion.div {...fadeIn}>
-            <YearlyMissingRatio />
-          </motion.div>
+            <motion.div {...fadeIn} className="col-span-1">
+              {/* Average Missing Value Ratio: fix height and spacing */}
+              <div className="h-full flex flex-col">
+                <YearlyMissingRatio />
+              </div>
+            </motion.div>
+          </div>
 
           {/* Dataset Split Summary */}
-          <motion.div {...fadeIn}>
-            <DatasetSplitSummary />
+          <motion.div {...fadeIn} className="mb-8">
+            <DatasetSplitSummary
+              datasetSplit={[
+                { split: "Global Train (World excl. ASEAN + Thailand)", rows: 15392 },
+                { split: "ASEAN Train (60%)", rows: 399 },
+                { split: "ASEAN Val (40%)", rows: 267 },
+                { split: "Thailand Test", rows: 74 }
+              ]}
+            />
           </motion.div>
 
+          {/* Status + Overview: adjust grid */}
           <div className="grid md:grid-cols-2 gap-8 mb-12">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -288,8 +303,10 @@ const Dataset = () => {
                     </Card>
                     <Card className="bg-green-50/50 p-4 flex flex-col items-center justify-center">
                       <BarChart3 className="h-8 w-8 text-green-600 mb-2" />
-                      <h3 className="font-medium text-green-700 text-center">Key Features</h3>
-                      <p className="text-sm text-gray-600 text-center">Selected using VIF threshold</p>
+                      <h3 className="font-medium text-green-700 text-center">Feature Selection</h3>
+                      <p className="text-sm text-gray-600 text-center">
+                        Features selected using VIF threshold
+                      </p>
                     </Card>
                     <Card className="bg-green-50/50 p-4 flex flex-col items-center justify-center">
                       <Database className="h-8 w-8 text-green-600 mb-2" />
