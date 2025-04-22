@@ -23,156 +23,94 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Database, Filter, CircleCheck, AlertCircle, Info, FileText, LineChart, BarChart3, PieChart } from "lucide-react";
+import { Database, Filter, CircleCheck, Info, FileText, LineChart, BarChart3, PieChart } from "lucide-react";
 
-// Import components
-import ThailandTrendDashboard from "@/components/dataset/ThailandTrendDashboard";
-import YearlyMissingRatio from "@/components/dataset/YearlyMissingRatio";
-import DatasetSplitSummary from "@/components/dataset/DatasetSplitSummary";
+// --- New chart cards for maintainability
+import ThailandTrendDashboardCard from "@/components/dataset/ThailandTrendDashboardCard";
+import YearlyMissingRatioCard from "@/components/dataset/YearlyMissingRatioCard";
+
+// --- USE: latest requested "sample cleaned records"
+const cleanedData = [
+  {
+    year: 1950, population: 20428403.0, gdp: 26094198784.0, cement_co2_per_capita: 0.004, co2_growth_abs: 0.894,
+    co2_including_luc_growth_abs: -2.338, co2_including_luc_per_gdp: 8.579, co2_including_luc_per_unit_energy: 8.235,
+    co2_per_gdp: 0.037, co2_per_unit_energy: 0.242, coal_co2_per_capita: 0.002, energy_per_capita: 992.445,
+    flaring_co2_per_capita: 0.003, nitrous_oxide_per_capita: 0.288, temperature_change_from_n2o: 0.0,
+    country: "Thailand", co2: 0.956
+  },
+  {
+    year: 1951, population: 20965189.0, gdp: 27943960576.0, cement_co2_per_capita: 0.007, co2_growth_abs: 0.135,
+    co2_including_luc_growth_abs: 0.458, co2_including_luc_per_gdp: 8.028, co2_including_luc_per_unit_energy: 8.235,
+    co2_per_gdp: 0.039, co2_per_unit_energy: 0.242, coal_co2_per_capita: 0.002, energy_per_capita: 992.445,
+    flaring_co2_per_capita: 0.003, nitrous_oxide_per_capita: 0.282, temperature_change_from_n2o: 0.0,
+    country: "Thailand", co2: 1.091
+  },
+  {
+    year: 1952, population: 21527581.0, gdp: 29485821952.0, cement_co2_per_capita: 0.006, co2_growth_abs: 0.187,
+    co2_including_luc_growth_abs: 7.96, co2_including_luc_per_gdp: 7.878, co2_including_luc_per_unit_energy: 8.235,
+    co2_per_gdp: 0.043, co2_per_unit_energy: 0.242, coal_co2_per_capita: 0.003, energy_per_capita: 992.445,
+    flaring_co2_per_capita: 0.003, nitrous_oxide_per_capita: 0.277, temperature_change_from_n2o: 0.0,
+    country: "Thailand", co2: 1.278
+  },
+  {
+    year: 1953, population: 22109322.0, gdp: 32726595584.0, cement_co2_per_capita: 0.006, co2_growth_abs: 0.366,
+    co2_including_luc_growth_abs: 4.407, co2_including_luc_per_gdp: 7.233, co2_including_luc_per_unit_energy: 8.235,
+    co2_per_gdp: 0.05, co2_per_unit_energy: 0.242, coal_co2_per_capita: 0.004, energy_per_capita: 992.445,
+    flaring_co2_per_capita: 0.003, nitrous_oxide_per_capita: 0.272, temperature_change_from_n2o: 0.0,
+    country: "Thailand", co2: 1.644
+  },
+  {
+    year: 1954, population: 22713342.0, gdp: 32462198784.0, cement_co2_per_capita: 0.008, co2_growth_abs: 0.406,
+    co2_including_luc_growth_abs: 6.434, co2_including_luc_per_gdp: 7.49, co2_including_luc_per_unit_energy: 8.235,
+    co2_per_gdp: 0.063, co2_per_unit_energy: 0.242, coal_co2_per_capita: 0.009, energy_per_capita: 992.445,
+    flaring_co2_per_capita: 0.003, nitrous_oxide_per_capita: 0.268, temperature_change_from_n2o: 0.0,
+    country: "Thailand", co2: 2.05
+  },
+];
+
+const cleaningSteps = [
+  {
+    title: "Initial Data Loading & Filtering",
+    description: "Source: Our World in Data CO₂ Dataset",
+    details: [
+      "Filter records from 1950 onward only",
+      "Remove region-level aggregates by filtering to valid ISO-3 country codes",
+      "Select relevant features for analysis"
+    ]
+  },
+  {
+    title: "Feature Selection",
+    description: "Features selected using VIF threshold.",
+    details: [
+      "population, gdp, cement_co2_per_capita, co2_growth_abs, co2_including_luc_growth_abs, co2_including_luc_per_gdp, co2_including_luc_per_unit_energy, co2_per_gdp, co2_per_unit_energy, coal_co2_per_capita, energy_per_capita, flaring_co2_per_capita, nitrous_oxide_per_capita, temperature_change_from_n2o, co2"
+    ]
+  },
+  {
+    title: "Missing Value Treatment",
+    description: "Systematic approach to handle gaps in data",
+    details: [
+      "Drop columns with >50% missing values (post-1950)",
+      "Apply forward-fill within each country group",
+      "Use backward-fill for remaining gaps",
+      "Validate completeness of key indicators"
+    ]
+  }
+];
+
+// Animation config
+const fadeIn = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6 }
+};
 
 const Dataset = () => {
   const [showPreprocessing, setShowPreprocessing] = useState(false);
 
-  // Current sample cleaned data, as requested
-  const cleanedData = [
-    {
-      year: 2019,
-      population: 71522265.0,
-      gdp: 1149130637312.0,
-      cement_co2_per_capita: 0.312,
-      co2_growth_abs: -6.427,
-      co2_including_luc_growth_abs: -8.991,
-      co2_including_luc_per_gdp: 0.278,
-      co2_including_luc_per_unit_energy: 0.216,
-      co2_per_gdp: 0.245,
-      co2_per_unit_energy: 0.19,
-      coal_co2_per_capita: 0.98,
-      energy_per_capita: 20751.527,
-      flaring_co2_per_capita: 0.008,
-      nitrous_oxide_per_capita: 0.33,
-      temperature_change_from_n2o: 0.001,
-      country: "Thailand",
-      co2: 281.877,
-    },
-    {
-      year: 2020,
-      population: 71641484.0,
-      gdp: 1078332620800.0,
-      cement_co2_per_capita: 0.306,
-      co2_growth_abs: -9.954,
-      co2_including_luc_growth_abs: -11.755,
-      co2_including_luc_per_gdp: 0.285,
-      co2_including_luc_per_unit_energy: 0.223,
-      co2_per_gdp: 0.252,
-      co2_per_unit_energy: 0.198,
-      coal_co2_per_capita: 1.044,
-      energy_per_capita: 19247.928,
-      flaring_co2_per_capita: 0.008,
-      nitrous_oxide_per_capita: 0.341,
-      temperature_change_from_n2o: 0.001,
-      country: "Thailand",
-      co2: 271.923,
-    },
-    {
-      year: 2021,
-      population: 71727340.0,
-      gdp: 1095187103744.0,
-      cement_co2_per_capita: 0.295,
-      co2_growth_abs: -4.781,
-      co2_including_luc_growth_abs: -5.507,
-      co2_including_luc_per_gdp: 0.276,
-      co2_including_luc_per_unit_energy: 0.218,
-      co2_per_gdp: 0.244,
-      co2_per_unit_energy: 0.193,
-      coal_co2_per_capita: 1.069,
-      energy_per_capita: 19368.557,
-      flaring_co2_per_capita: 0.007,
-      nitrous_oxide_per_capita: 0.337,
-      temperature_change_from_n2o: 0.001,
-      country: "Thailand",
-      co2: 267.142,
-    },
-    {
-      year: 2022,
-      population: 71735320.0,
-      gdp: 1124143726592.0,
-      cement_co2_per_capita: 0.293,
-      co2_growth_abs: 5.432,
-      co2_including_luc_growth_abs: 4.502,
-      co2_including_luc_per_gdp: 0.273,
-      co2_including_luc_per_unit_energy: 0.221,
-      co2_per_gdp: 0.242,
-      co2_per_unit_energy: 0.196,
-      coal_co2_per_capita: 0.973,
-      energy_per_capita: 19357.754,
-      flaring_co2_per_capita: 0.006,
-      nitrous_oxide_per_capita: 0.339,
-      temperature_change_from_n2o: 0.001,
-      country: "Thailand",
-      co2: 272.573,
-    },
-    {
-      year: 2023,
-      population: 71702438.0,
-      gdp: 1124143726592.0,
-      cement_co2_per_capita: 0.268,
-      co2_growth_abs: -8.185,
-      co2_including_luc_growth_abs: -8.996,
-      co2_including_luc_per_gdp: 0.273,
-      co2_including_luc_per_unit_energy: 0.214,
-      co2_per_gdp: 0.242,
-      co2_per_unit_energy: 0.19,
-      coal_co2_per_capita: 0.827,
-      energy_per_capita: 19370.299,
-      flaring_co2_per_capita: 0.006,
-      nitrous_oxide_per_capita: 0.339,
-      temperature_change_from_n2o: 0.001,
-      country: "Thailand",
-      co2: 264.389,
-    },
-  ];
-
-  // Updated cleaning steps (remove quality assurance)
-  const cleaningSteps = [
-    {
-      title: "Initial Data Loading & Filtering",
-      description: "Source: Our World in Data CO₂ Dataset",
-      details: [
-        "Filter records from 1950 onward only",
-        "Remove region-level aggregates by filtering to valid ISO-3 country codes",
-        "Select relevant features for analysis"
-      ]
-    },
-    {
-      title: "Feature Selection",
-      description: "Selected columns using VIF threshold",
-      details: [
-        "population, gdp, cement_co2_per_capita, co2_growth_abs, co2_including_luc_growth_abs, co2_including_luc_per_gdp, co2_including_luc_per_unit_energy, co2_per_gdp, co2_per_unit_energy, coal_co2_per_capita, energy_per_capita, flaring_co2_per_capita, nitrous_oxide_per_capita, temperature_change_from_n2o, co2"
-      ]
-    },
-    {
-      title: "Missing Value Treatment",
-      description: "Systematic approach to handle gaps in data",
-      details: [
-        "Drop columns with >50% missing values (post-1950)",
-        "Apply forward-fill within each country group",
-        "Use backward-fill for remaining gaps",
-        "Validate completeness of key indicators"
-      ]
-    }
-  ];
-
-  // Animation config
-  const fadeIn = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.6 }
-  };
-
   return (
-    <div className="min-h-screen pt-16">
+    <div className="min-h-screen bg-green-50/30">
       <motion.section 
-        className="relative py-16 bg-gradient-to-b from-green-50 to-white overflow-hidden"
+        className="relative py-12 bg-gradient-to-b from-green-50 to-white overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6 }}
@@ -184,7 +122,7 @@ const Dataset = () => {
           <h1 className="text-4xl font-bold text-green-800 mb-6">Dataset Overview</h1>
           <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-4">
             Our analysis utilizes the comprehensive Our World in Data CO₂ emissions dataset, 
-            covering the period from 1750 to 2023 (data analyzed from 1950 onward due to missingness).
+            covering the period from 1750 to 2023 (used only from 1950 onward due to missingness).
           </p>
           <a
             href="https://ourworldindata.org/co2-dataset-sources"
@@ -197,62 +135,59 @@ const Dataset = () => {
         </div>
       </motion.section>
 
-      <section className="py-12">
+      <section className="py-8 bg-green-50/30">
         <div className="section-container">
 
-          <Card className="mb-8">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-green-600" />
-                <CardTitle className="text-green-700">Data Source</CardTitle>
-              </div>
-              <CardDescription>
-                Primary dataset: owid-co2-data.csv from Our World in Data
-                <br />
-                Coverage: 1750-2023 (Data used only from 1950 onward due to missingness)
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col items-start space-y-2">
-                <a
-                  href="https://ourworldindata.org/co2-dataset-sources"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block text-green-700 hover:text-green-800 underline"
-                >
-                  <span className="font-semibold underline">💾 Link to OWID - World Carbon Data</span>
-                </a>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Responsive grid for Dashboard + Missing Ratio */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
+          {/* Dashboard + Missing Ratio on grid w/ responsive adjustment */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 mb-8">
             <motion.div {...fadeIn} className="col-span-1">
-              {/* Thailand Trend Dashboard: ensure card/content does not overflow */}
-              <div className="h-full flex flex-col">
-                <ThailandTrendDashboard />
-              </div>
+              <ThailandTrendDashboardCard />
             </motion.div>
-
             <motion.div {...fadeIn} className="col-span-1">
-              {/* Average Missing Value Ratio: fix height and spacing */}
-              <div className="h-full flex flex-col">
-                <YearlyMissingRatio />
-              </div>
+              <YearlyMissingRatioCard />
             </motion.div>
           </div>
 
           {/* Dataset Split Summary */}
           <motion.div {...fadeIn} className="mb-8">
-            <DatasetSplitSummary
-              datasetSplit={[
-                { split: "Global Train (World excl. ASEAN + Thailand)", rows: 15392 },
-                { split: "ASEAN Train (60%)", rows: 399 },
-                { split: "ASEAN Val (40%)", rows: 267 },
-                { split: "Thailand Test", rows: 74 }
-              ]}
-            />
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xl text-green-700">Train-Validation-Test Split</CardTitle>
+                <CardDescription>
+                  Row Counts by Dataset Split
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Split</TableHead>
+                        <TableHead className="text-right">Rows</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>Global Train (World excl. ASEAN + Thailand)</TableCell>
+                        <TableCell className="text-right">15,392</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>ASEAN Train (60%)</TableCell>
+                        <TableCell className="text-right">399</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>ASEAN Val (40%)</TableCell>
+                        <TableCell className="text-right">267</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Thailand Test</TableCell>
+                        <TableCell className="text-right">74</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
           </motion.div>
 
           {/* Status + Overview: adjust grid */}
@@ -290,40 +225,25 @@ const Dataset = () => {
               <Card>
                 <CardHeader>
                   <div className="flex items-center gap-2">
-                    <AlertCircle className="h-5 w-5 text-amber-500" />
-                    <CardTitle className="text-green-700">Dataset Overview</CardTitle>
+                    <BarChart3 className="h-8 w-8 text-green-600 mb-2" />
+                    <CardTitle className="text-green-700">Feature Selection</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Card className="bg-green-50/50 p-4 flex flex-col items-center justify-center">
-                      <LineChart className="h-8 w-8 text-green-600 mb-2" />
-                      <h3 className="font-medium text-green-700 text-center">Time-Series Format</h3>
-                      <p className="text-sm text-gray-600 text-center">Annual observations from 1950-2023</p>
-                    </Card>
-                    <Card className="bg-green-50/50 p-4 flex flex-col items-center justify-center">
-                      <BarChart3 className="h-8 w-8 text-green-600 mb-2" />
-                      <h3 className="font-medium text-green-700 text-center">Feature Selection</h3>
-                      <p className="text-sm text-gray-600 text-center">
-                        Features selected using VIF threshold
-                      </p>
-                    </Card>
-                    <Card className="bg-green-50/50 p-4 flex flex-col items-center justify-center">
-                      <Database className="h-8 w-8 text-green-600 mb-2" />
-                      <h3 className="font-medium text-green-700 text-center">Complete Records</h3>
-                      <p className="text-sm text-gray-600 text-center">No missing values after processing</p>
-                    </Card>
-                    <Card className="bg-green-50/50 p-4 flex flex-col items-center justify-center">
-                      <PieChart className="h-8 w-8 text-green-600 mb-2" />
-                      <h3 className="font-medium text-green-700 text-center">Strategic Split</h3>
-                      <p className="text-sm text-gray-600 text-center">Global + ASEAN training</p>
-                    </Card>
+                  <div>
+                    <div className="font-medium text-green-700 mb-1">
+                      Features selected using VIF threshold
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      population, gdp, cement_co2_per_capita, co2_growth_abs, co2_including_luc_growth_abs, co2_including_luc_per_gdp, co2_including_luc_per_unit_energy, co2_per_gdp, co2_per_unit_energy, coal_co2_per_capita, energy_per_capita, flaring_co2_per_capita, nitrous_oxide_per_capita, temperature_change_from_n2o, co2
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             </motion.div>
           </div>
 
+          {/* Data Preprocessing Steps */}
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
