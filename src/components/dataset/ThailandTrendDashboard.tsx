@@ -78,7 +78,7 @@ const ThailandTrendDashboard = () => {
                       dataKey="year" 
                       tickFormatter={(value) => value % 10 === 0 ? value.toString() : ''}
                     />
-                    <YAxis tickFormatter={(value) => formatNumber(value)} />
+                    <YAxis tickFormatter={(value) => formatNumber(Number(value))} />
                     <ChartTooltip
                       content={({ active, payload, label }) => {
                         if (active && payload && payload.length) {
@@ -86,7 +86,7 @@ const ThailandTrendDashboard = () => {
                             <div className="bg-white p-3 border border-gray-200 rounded-md shadow-md">
                               <p className="font-medium">Year: {label}</p>
                               <p className="text-green-700">
-                                CO₂: {payload[0].value.toFixed(3)} MtCO₂
+                                CO₂: {Number(payload[0].value).toFixed(3)} MtCO₂
                               </p>
                             </div>
                           );
@@ -129,7 +129,7 @@ const ThailandTrendDashboard = () => {
                       dataKey="year" 
                       tickFormatter={(value) => value % 10 === 0 ? value.toString() : ''}
                     />
-                    <YAxis tickFormatter={(value) => formatNumber(value)} />
+                    <YAxis tickFormatter={(value) => formatNumber(Number(value))} />
                     <ChartTooltip
                       content={({ active, payload, label }) => {
                         if (active && payload && payload.length) {
@@ -137,7 +137,7 @@ const ThailandTrendDashboard = () => {
                             <div className="bg-white p-3 border border-gray-200 rounded-md shadow-md">
                               <p className="font-medium">Year: {label}</p>
                               <p className="text-cyan-700">
-                                GDP: {formatNumber(payload[0].value)} USD
+                                GDP: {formatNumber(Number(payload[0].value))} USD
                               </p>
                             </div>
                           );
@@ -180,7 +180,7 @@ const ThailandTrendDashboard = () => {
                       dataKey="year" 
                       tickFormatter={(value) => value % 10 === 0 ? value.toString() : ''}
                     />
-                    <YAxis tickFormatter={(value) => formatNumber(value)} />
+                    <YAxis tickFormatter={(value) => formatNumber(Number(value))} />
                     <ChartTooltip
                       content={({ active, payload, label }) => {
                         if (active && payload && payload.length) {
@@ -188,7 +188,7 @@ const ThailandTrendDashboard = () => {
                             <div className="bg-white p-3 border border-gray-200 rounded-md shadow-md">
                               <p className="font-medium">Year: {label}</p>
                               <p className="text-purple-700">
-                                Population: {formatNumber(payload[0].value)}
+                                Population: {formatNumber(Number(payload[0].value))}
                               </p>
                             </div>
                           );

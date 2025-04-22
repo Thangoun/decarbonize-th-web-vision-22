@@ -9,12 +9,12 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 
-// Updated split numbers
+// Updated split numbers as requested
 const datasetSplitData = [
-  { split: "Global Train (World excl. ASEAN + Thailand)", rows: 2350 },
-  { split: "ASEAN Train (60%)", rows: 680 },
-  { split: "ASEAN Val (40%)", rows: 455 },
-  { split: "Thailand Test", rows: 73 }
+  { split: "Global Train (World excl. ASEAN + Thailand)", rows: 15392 },
+  { split: "ASEAN Train (60%)", rows: 399 },
+  { split: "ASEAN Val (40%)", rows: 267 },
+  { split: "Thailand Test", rows: 74 }
 ];
 
 const COLORS = ['#16a34a', '#22c55e', '#4ade80', '#86efac'];

@@ -73,7 +73,7 @@ const ModelFeatureImportance = ({ features }: ModelFeatureImportanceProps) => {
               />
               <YAxis 
                 type="category" 
-                dataKey="name" 
+                dataKey="feature" 
                 width={90}
                 tick={(props) => {
                   const { x, y, payload } = props;
@@ -87,7 +87,7 @@ const ModelFeatureImportance = ({ features }: ModelFeatureImportanceProps) => {
                         fill="#666"
                         style={{ 
                           fontSize: '12px',
-                          fontWeight: payload.value === sortedFeatures[0].name ? 'bold' : 'normal'
+                          fontWeight: payload.value === sortedFeatures[0].feature ? 'bold' : 'normal'
                         }}
                       >
                         {formatFeatureName(payload.value)}

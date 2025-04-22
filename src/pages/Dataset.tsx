@@ -25,7 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Database, Filter, CircleCheck, AlertCircle, Info, FileText, LineChart, BarChart3, PieChart } from "lucide-react";
 
-// Import new components
+// Import components
 import ThailandTrendDashboard from "@/components/dataset/ThailandTrendDashboard";
 import YearlyMissingRatio from "@/components/dataset/YearlyMissingRatio";
 import DatasetSplitSummary from "@/components/dataset/DatasetSplitSummary";
@@ -145,7 +145,7 @@ const Dataset = () => {
     },
     {
       title: "Feature Selection",
-      description: "Selected columns",
+      description: "Selected columns using VIF threshold",
       details: [
         "population, gdp, cement_co2_per_capita, co2_growth_abs, co2_including_luc_growth_abs, co2_including_luc_per_gdp, co2_including_luc_per_unit_energy, co2_per_gdp, co2_per_unit_energy, coal_co2_per_capita, energy_per_capita, flaring_co2_per_capita, nitrous_oxide_per_capita, temperature_change_from_n2o, co2"
       ]
@@ -209,7 +209,7 @@ const Dataset = () => {
               <CardDescription>
                 Primary dataset: owid-co2-data.csv from Our World in Data
                 <br />
-                Coverage: 1750-2023 (Thailand used only from 1950 onward due to missingness)
+                Coverage: 1750-2023 (Data used only from 1950 onward due to missingness)
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -258,16 +258,8 @@ const Dataset = () => {
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-3 bg-green-50 rounded">
-                      <span>Time Range Filter</span>
-                      <span className="text-green-600">Applied</span>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-green-50 rounded">
                       <span>Country Code Validation</span>
                       <span className="text-green-600">Verified</span>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-green-50 rounded">
-                      <span>Outlier Review</span>
-                      <span className="text-green-600">Completed</span>
                     </div>
                   </div>
                 </CardContent>
@@ -297,7 +289,7 @@ const Dataset = () => {
                     <Card className="bg-green-50/50 p-4 flex flex-col items-center justify-center">
                       <BarChart3 className="h-8 w-8 text-green-600 mb-2" />
                       <h3 className="font-medium text-green-700 text-center">Key Features</h3>
-                      <p className="text-sm text-gray-600 text-center">Carefully selected variables</p>
+                      <p className="text-sm text-gray-600 text-center">Selected using VIF threshold</p>
                     </Card>
                     <Card className="bg-green-50/50 p-4 flex flex-col items-center justify-center">
                       <Database className="h-8 w-8 text-green-600 mb-2" />
