@@ -24,22 +24,13 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  Cell,
-  Legend
-} from 'recharts';
-import { Database, Filter, CircleCheck, AlertCircle, Info, FileText } from "lucide-react";
+import { Database, Filter, CircleCheck, AlertCircle, Info, FileText, LineChart, BarChart3, PieChart } from "lucide-react";
+
+// Import new components
+import ThailandTrendDashboard from "@/components/dataset/ThailandTrendDashboard";
+import MissingValuesDiagnostic from "@/components/dataset/MissingValuesDiagnostic";
+import YearlyMissingRatio from "@/components/dataset/YearlyMissingRatio";
+import DatasetSplitSummary from "@/components/dataset/DatasetSplitSummary";
 
 const Dataset = () => {
   const [showPreprocessing, setShowPreprocessing] = useState(false);
@@ -102,6 +93,13 @@ const Dataset = () => {
     }
   ];
 
+  // Create fade-in animation for sections
+  const fadeIn = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.6 }
+  };
+
   return (
     <div className="min-h-screen pt-16">
       <motion.section 
@@ -160,6 +158,26 @@ const Dataset = () => {
             </CardContent>
           </Card>
 
+          {/* Thailand Trend Dashboard */}
+          <motion.div {...fadeIn}>
+            <ThailandTrendDashboard />
+          </motion.div>
+
+          {/* Missing Values Diagnostics */}
+          <motion.div {...fadeIn}>
+            <MissingValuesDiagnostic />
+          </motion.div>
+
+          {/* Yearly Missing Ratio */}
+          <motion.div {...fadeIn}>
+            <YearlyMissingRatio />
+          </motion.div>
+
+          {/* Dataset Split Summary */}
+          <motion.div {...fadeIn}>
+            <DatasetSplitSummary />
+          </motion.div>
+
           <div className="grid md:grid-cols-2 gap-8 mb-12">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -207,38 +225,31 @@ const Dataset = () => {
                 <CardHeader>
                   <div className="flex items-center gap-2">
                     <AlertCircle className="h-5 w-5 text-amber-500" />
-                    <CardTitle className="text-green-700">Data Insights</CardTitle>
+                    <CardTitle className="text-green-700">Dataset Overview</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-[250px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={cleanedData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="year" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Line 
-                          type="monotone" 
-                          dataKey="co2" 
-                          name="CO₂ Emissions"
-                          stroke="#15803d" 
-                          strokeWidth={2}
-                        />
-                        <Line 
-                          type="monotone" 
-                          dataKey="energy"
-                          name="Energy Consumption" 
-                          stroke="#0284c7"
-                          strokeWidth={2}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                  <div className="mt-4 text-sm text-gray-600">
-                    <Info className="inline-block mr-2 h-4 w-4" />
-                    Trend visualization of key metrics after data cleaning
+                  <div className="grid grid-cols-2 gap-4">
+                    <Card className="bg-green-50/50 p-4 flex flex-col items-center justify-center">
+                      <LineChart className="h-8 w-8 text-green-600 mb-2" />
+                      <h3 className="font-medium text-green-700 text-center">Time-Series Format</h3>
+                      <p className="text-sm text-gray-600 text-center">Annual observations from 1950-2023</p>
+                    </Card>
+                    <Card className="bg-green-50/50 p-4 flex flex-col items-center justify-center">
+                      <BarChart3 className="h-8 w-8 text-green-600 mb-2" />
+                      <h3 className="font-medium text-green-700 text-center">15 Key Features</h3>
+                      <p className="text-sm text-gray-600 text-center">Carefully selected variables</p>
+                    </Card>
+                    <Card className="bg-green-50/50 p-4 flex flex-col items-center justify-center">
+                      <Database className="h-8 w-8 text-green-600 mb-2" />
+                      <h3 className="font-medium text-green-700 text-center">Complete Records</h3>
+                      <p className="text-sm text-gray-600 text-center">No missing values after processing</p>
+                    </Card>
+                    <Card className="bg-green-50/50 p-4 flex flex-col items-center justify-center">
+                      <PieChart className="h-8 w-8 text-green-600 mb-2" />
+                      <h3 className="font-medium text-green-700 text-center">Strategic Split</h3>
+                      <p className="text-sm text-gray-600 text-center">Global + ASEAN training</p>
+                    </Card>
                   </div>
                 </CardContent>
               </Card>

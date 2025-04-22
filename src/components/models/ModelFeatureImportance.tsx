@@ -1,78 +1,118 @@
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from "recharts";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  BarChart, 
+  Bar, 
+  Cell, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  LabelList
+} from 'recharts';
 import { FeatureImportance } from "@/types/modelTypes";
-
-// Tweak: wider left margin, dynamic height, fixed bar size, no cutoff
-const BAR_HEIGHT = 26;
 
 interface ModelFeatureImportanceProps {
   features: FeatureImportance[];
 }
 
-const getBarColor = (idx: number) => {
-  // A pleasant gradient palette for bar colors (repeat colors if >7)
-  const palette = [
-    '#4ade80', '#34d399', '#2dd4bf', '#60a5fa', '#818cf8',
-    '#a78bfa', '#f472b6', '#fbbf24', '#f87171', '#fb7185'
-  ];
-  return palette[idx % palette.length];
-};
-
 const ModelFeatureImportance = ({ features }: ModelFeatureImportanceProps) => {
-  if (!features.length) {
+  // Sort features by importance (descending)
+  const sortedFeatures = [...features].sort((a, b) => b.importance - a.importance);
+  
+  // Format tooltip to display percentage
+  const formatTooltip = (value: number) => {
+    return `${(value * 100).toFixed(2)}%`;
+  };
+  
+  // Custom tooltip component
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-3 border rounded shadow-sm">
+          <p className="font-medium">{label}</p>
+          <p className="text-green-600">
+            Importance: {formatTooltip(payload[0].value)}
+          </p>
+        </div>
+      );
+    }
     return null;
-  }
-  const chartHeight = Math.max(features.length * BAR_HEIGHT + 36, 290);
+  };
+
+  // Format feature names for better display if they're too long
+  const formatFeatureName = (name: string) => {
+    if (name.length > 20) {
+      return name.slice(0, 18) + '...';
+    }
+    return name;
+  };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-green-700">Feature Importance</CardTitle>
+        <CardTitle className="text-xl text-green-700">Feature Importance</CardTitle>
         <CardDescription>
-          Top 10 most influential features in the model
+          Relative importance of features in the model prediction
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="w-full" style={{ height: chartHeight }}>
+        <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               layout="vertical"
-              data={features}
-              margin={{ top: 8, right: 32, left: 200, bottom: 8 }}
-              barCategoryGap="14%"
+              data={sortedFeatures.slice(0, 10)}
+              margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
             >
-              <CartesianGrid strokeDasharray="2 4" horizontal vertical={false} />
-              <XAxis type="number" domain={[0, 'dataMax']} hide />
-              <YAxis
-                dataKey="feature"
-                type="category"
-                width={196}
-                tick={{
-                  fill: "#18212f",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  textShadow: "0 1px 0 #fff, 0 0px 1px #eee"
+              <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
+              <XAxis 
+                type="number" 
+                domain={[0, Math.max(...sortedFeatures.map(f => f.importance)) * 1.1]} 
+                tickFormatter={(val) => `${(val * 100).toFixed(0)}%`}
+              />
+              <YAxis 
+                type="category" 
+                dataKey="name" 
+                width={90}
+                tick={(props) => {
+                  const { x, y, payload } = props;
+                  return (
+                    <g transform={`translate(${x},${y})`}>
+                      <text 
+                        x={-3} 
+                        y={0} 
+                        dy={4} 
+                        textAnchor="end" 
+                        fill="#666"
+                        style={{ 
+                          fontSize: '12px',
+                          fontWeight: payload.value === sortedFeatures[0].name ? 'bold' : 'normal'
+                        }}
+                      >
+                        {formatFeatureName(payload.value)}
+                      </text>
+                    </g>
+                  );
                 }}
-                tickLine={false}
-                axisLine={false}
-                interval={0}
               />
-              <Tooltip
-                formatter={(value: number) => [`${value.toFixed(3)}`, 'Importance']}
-                labelFormatter={(label) => `Feature: ${label}`}
-                wrapperClassName="!rounded-md !text-xs !shadow-2xl"
-              />
-              <Bar
-                dataKey="importance"
-                minPointSize={7}
-                radius={[6, 6, 6, 6]}
-                isAnimationActive
-                barSize={18}
+              <Tooltip content={<CustomTooltip />} />
+              <Bar 
+                dataKey="importance" 
+                fill="#16a34a"
+                barSize={20}
               >
-                {features.map((entry, idx) => (
-                  <Cell key={`bar-${entry.feature}`} fill={getBarColor(idx)} />
+                {sortedFeatures.slice(0, 10).map((entry, index) => (
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={index === 0 ? '#15803d' : '#22c55e'} 
+                  />
                 ))}
+                <LabelList 
+                  dataKey="importance" 
+                  position="right"
+                  formatter={formatTooltip}
+                />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
