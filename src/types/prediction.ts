@@ -28,3 +28,12 @@ export interface InputConfig {
   initialValue: number;
 }
 
+export interface SliderConfig {
+  id: keyof PredictionPayload | 'year';
+  label: string;
+  min: number;
+  max: number;
+  step: number;
+  unit?: string;
+  initialValue: number;
+}
