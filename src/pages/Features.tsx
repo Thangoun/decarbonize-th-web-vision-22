@@ -1,7 +1,7 @@
 
 import React, { useRef } from 'react';
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Filter, Database, ChartBar, Population, Thermometer } from "lucide-react";
+import { Filter, Database, ChartBar, Users, Thermometer } from "lucide-react";
 import FeatureTable from '@/components/features/FeatureTable';
 import CorrelationHeatmap from '@/components/features/CorrelationHeatmap';
 import FeatureInsights from '@/components/features/FeatureInsights';
@@ -128,7 +128,7 @@ const Features = () => {
           >
             <div className="flex items-center mb-6">
               <div className="bg-green-100 p-2 rounded-full mr-3">
-                <Population className="h-5 w-5 text-green-600" />
+                <Users className="h-5 w-5 text-green-600" />
               </div>
               <h2 className="text-2xl font-bold text-green-800">Feature Correlation Matrix</h2>
             </div>

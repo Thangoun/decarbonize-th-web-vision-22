@@ -43,27 +43,44 @@ const FeatureTable: React.FC<FeatureTableProps> = ({ className }) => {
           </TableHeader>
           <TableBody>
             {sortedFeatures.map((feature, index) => (
-              <motion.tr
-                key={feature.name}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="hover:bg-green-50"
-                component={TableRow}
-              >
-                <TableCell className="font-medium">{formatFeatureName(feature.name)}</TableCell>
-                <TableCell className="text-center">
+              <TableRow key={feature.name} className="hover:bg-green-50">
+                <motion.td
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="font-medium p-4 align-middle [&:has([role=checkbox])]:pr-0"
+                >
+                  {formatFeatureName(feature.name)}
+                </motion.td>
+                <motion.td
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="text-center p-4 align-middle [&:has([role=checkbox])]:pr-0"
+                >
                   <Badge variant="outline" className="bg-gray-100">
                     {feature.vif.toFixed(2)}
                   </Badge>
-                </TableCell>
-                <TableCell className="text-center">
+                </motion.td>
+                <motion.td
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="text-center p-4 align-middle [&:has([role=checkbox])]:pr-0"
+                >
                   <Badge className={getCorrelationBadgeColor(feature.correlation)}>
                     {feature.correlation.toFixed(2)}
                   </Badge>
-                </TableCell>
-                <TableCell>{feature.description}</TableCell>
-              </motion.tr>
+                </motion.td>
+                <motion.td
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="p-4 align-middle [&:has([role=checkbox])]:pr-0"
+                >
+                  {feature.description}
+                </motion.td>
+              </TableRow>
             ))}
           </TableBody>
         </Table>
