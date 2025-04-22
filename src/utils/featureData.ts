@@ -1,3 +1,4 @@
+
 export interface FeatureInfo {
   name: string;
   vif: number;
@@ -304,3 +305,65 @@ export const correlationData: CorrelationPoint[] = [
   { "x": "temperature_change_from_n2o", "y": "population", "value": 0.68 },
   { "x": "temperature_change_from_n2o", "y": "gdp", "value": 0.89 },
   { "x": "temperature_change_from_n2o", "y": "cement_co2_per_capita", "value": 0.11 },
+  { "x": "temperature_change_from_n2o", "y": "co2_growth_abs", "value": 0.31 },
+  { "x": "temperature_change_from_n2o", "y": "co2_including_luc_growth_abs", "value": 0.15 },
+  { "x": "temperature_change_from_n2o", "y": "co2_including_luc_per_gdp", "value": -0.07 },
+  { "x": "temperature_change_from_n2o", "y": "co2_including_luc_per_unit_energy", "value": -0.02 },
+  { "x": "temperature_change_from_n2o", "y": "co2_per_gdp", "value": 0.02 },
+  { "x": "temperature_change_from_n2o", "y": "co2_per_unit_energy", "value": -0.01 },
+  { "x": "temperature_change_from_n2o", "y": "coal_co2_per_capita", "value": 0.21 },
+  { "x": "temperature_change_from_n2o", "y": "energy_per_capita", "value": 0.16 },
+  { "x": "temperature_change_from_n2o", "y": "flaring_co2_per_capita", "value": -0.02 },
+  { "x": "temperature_change_from_n2o", "y": "nitrous_oxide_per_capita", "value": 0.06 },
+  { "x": "temperature_change_from_n2o", "y": "temperature_change_from_n2o", "value": 1.0 },
+  { "x": "temperature_change_from_n2o", "y": "co2", "value": 0.86 },
+  { "x": "co2", "y": "population", "value": 0.66 },
+  { "x": "co2", "y": "gdp", "value": 0.93 },
+  { "x": "co2", "y": "cement_co2_per_capita", "value": 0.18 },
+  { "x": "co2", "y": "co2_growth_abs", "value": 0.46 },
+  { "x": "co2", "y": "co2_including_luc_growth_abs", "value": 0.23 },
+  { "x": "co2", "y": "co2_including_luc_per_gdp", "value": -0.06 },
+  { "x": "co2", "y": "co2_including_luc_per_unit_energy", "value": -0.02 },
+  { "x": "co2", "y": "co2_per_gdp", "value": 0.05 },
+  { "x": "co2", "y": "co2_per_unit_energy", "value": -0.0 },
+  { "x": "co2", "y": "coal_co2_per_capita", "value": 0.23 },
+  { "x": "co2", "y": "energy_per_capita", "value": 0.17 },
+  { "x": "co2", "y": "flaring_co2_per_capita", "value": -0.01 },
+  { "x": "co2", "y": "nitrous_oxide_per_capita", "value": 0.01 },
+  { "x": "co2", "y": "temperature_change_from_n2o", "value": 0.86 },
+  { "x": "co2", "y": "co2", "value": 1.0 }
+];
+
+export const getCorrelationsWithCO2 = (): CorrelationPoint[] => {
+  return correlationData.filter(point => point.y === "co2" && point.x !== "co2");
+};
+
+export interface FeatureInsight {
+  title: string;
+  description: string;
+}
+
+export const getFeatureInsights = (): FeatureInsight[] => {
+  return [
+    {
+      title: "GDP & Temperature Are Key Drivers",
+      description: "GDP (0.93) and temperature change from N₂O (0.86) show the strongest correlations with CO₂ emissions, highlighting economic activity and climate feedback as primary factors."
+    },
+    {
+      title: "Population Growth Matters",
+      description: "Population (0.66) has a strong correlation with emissions - more people generally means higher energy consumption and more emissions."
+    },
+    {
+      title: "Trend Indicators Are Important",
+      description: "CO₂ growth metrics (0.46, 0.23) are significant predictors, capturing the momentum and direction of emission changes."
+    },
+    {
+      title: "Energy Efficiency Shows Complex Relationships",
+      description: "Efficiency metrics like CO₂ per GDP and CO₂ per unit energy have lower correlations, showing that improving efficiency can moderate emissions growth."
+    },
+    {
+      title: "Fossil Fuel Dependence",
+      description: "Coal CO₂ per capita (0.23) remains a significant factor, highlighting the persistent impact of fossil fuel choices on overall emissions."
+    }
+  ];
+};
