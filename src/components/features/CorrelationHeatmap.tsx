@@ -1,165 +1,128 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { 
-  BarChart,
-  Bar,
-  Cell,
-  CartesianGrid,
-  XAxis, 
-  YAxis, 
-  Tooltip, 
-  ResponsiveContainer
-} from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Info } from 'lucide-react';
-import { correlationData, formatFeatureName, getCorrelationsWithCO2, CorrelationPoint } from '@/utils/featureData';
+import { Info } from "lucide-react";
+import { correlationData, formatFeatureName, CorrelationPoint } from '@/utils/featureData';
 
 interface CorrelationHeatmapProps {
   className?: string;
 }
 
 const CorrelationHeatmap: React.FC<CorrelationHeatmapProps> = ({ className }) => {
-  const [showOnlyCO2, setShowOnlyCO2] = useState(false);
-  const data = showOnlyCO2 ? getCorrelationsWithCO2() : correlationData;
-  
-  // Get unique feature names for axis
-  const featureNames = Array.from(new Set(data.map(d => d.x)));
-  
-  // Custom color scale for the heatmap
+  // Get sorted unique feature names for axis (ensures order and CO₂ on the end)
+  const co2Index = correlationData.map(d => d.x).lastIndexOf("co2");
+  const featureNames = Array.from(new Set(correlationData.map(d => d.x).filter(x => x !== "co2")));
+  featureNames.push("co2");
+
+  // Improved color scale for negative/positive values (from red to white to green)
   const getColor = (value: number) => {
-    if (value >= 0.8) return '#15803d'; // Strong positive - dark green
-    if (value >= 0.5) return '#22c55e'; // Moderate positive - medium green
-    if (value >= 0.2) return '#86efac'; // Weak positive - light green
-    if (value >= -0.2) return '#f3f4f6'; // Near zero - white/light gray
-    if (value >= -0.5) return '#fca5a5'; // Weak negative - light red
-    if (value >= -0.8) return '#ef4444'; // Moderate negative - medium red
-    return '#b91c1c'; // Strong negative - dark red
+    // Linear scale with stronger visible red for negative, green for positive
+    // -1 => #f87171 (red-400), 0 => #f3f4f6 (gray-100), 1 => #22c55e (green-500)
+    if (value >= 0.8) return '#15803d';   // Strong positive - dark green
+    if (value >= 0.5) return '#22c55e';   // Positive - green
+    if (value >= 0.2) return '#bbf7d0';   // Light green
+    if (value > -0.2) return '#f3f4f6';   // Near zero - bg
+    if (value > -0.5) return '#fca5a5';   // Light red
+    if (value > -0.8) return '#fb7185';   // Red-400
+    return '#b91c1c';                     // Strong negative - dark red
   };
 
   // Helper to format cell data for display
-  const formatCell = (point: CorrelationPoint) => {
-    return {
-      x: formatFeatureName(point.x),
-      y: formatFeatureName(point.y),
-      value: point.value.toFixed(2)
-    };
-  };
+  const formatCell = (point: CorrelationPoint) => ({
+    x: formatFeatureName(point.x),
+    y: formatFeatureName(point.y),
+    value: point.value.toFixed(2)
+  });
 
   return (
-    <Card className={className}>
+    <Card className={className + " overflow-x-auto"}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-green-700">Feature Correlation Matrix</CardTitle>
             <CardDescription>
-              Explore how different features relate to each other and to CO₂ emissions
+              Explore how different features relate to each other and to CO₂ emissions.
             </CardDescription>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Switch 
-              id="co2-only" 
-              checked={showOnlyCO2} 
-              onCheckedChange={setShowOnlyCO2} 
-            />
-            <Label htmlFor="co2-only">Show only CO₂ correlations</Label>
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="h-[500px] md:h-[600px] overflow-auto">
-          <div className="min-w-[600px] min-h-[600px]">
-            {showOnlyCO2 ? (
-              <div className="h-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={getCorrelationsWithCO2().map(item => ({
-                      name: formatFeatureName(item.x),
-                      value: Number(item.value.toFixed(2))
-                    }))}
-                    layout="vertical"
-                    margin={{ top: 20, right: 30, left: 150, bottom: 20 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      type="number" 
-                      domain={[-1, 1]} 
-                      tickCount={11} 
-                      ticks={[-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1]} 
-                    />
-                    <YAxis 
-                      dataKey="name" 
-                      type="category" 
-                      width={150}
-                      tickLine={false}
-                    />
-                    <Tooltip 
-                      formatter={(value: number) => [`${value}`, 'Correlation with CO₂']}
-                      labelFormatter={(label) => `Feature: ${label}`}
-                    />
-                    <Bar dataKey="value" minPointSize={2}>
-                      {getCorrelationsWithCO2().map((entry, index) => (
-                        <Cell 
-                          key={`cell-${index}`} 
-                          fill={getColor(entry.value)} 
-                        />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+        <div className="h-[400px] md:h-[600px] overflow-auto pb-6">
+          <div className="min-w-[700px] min-h-[560px]">
+            <div className="relative mb-2">
+              <div className="absolute -top-5 left-0 text-xs text-gray-500">
+                <Info size={16} className="inline mr-1" />
+                Hover over a cell for exact correlation value
               </div>
-            ) : (
-              <div className="relative">
-                <div className="absolute -top-6 -left-6 text-xs text-gray-500">
-                  <Info size={16} className="inline mr-1" />
-                  Hover over cells to see exact correlation values
-                </div>
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr>
-                      <th className="border p-1 bg-green-50"></th>
-                      {featureNames.map(name => (
-                        <th 
-                          key={name} 
-                          className="border p-1 bg-green-50 text-xs transform -rotate-45 origin-bottom-left h-24"
+            </div>
+            <table className="w-full border-collapse bg-white rounded-lg shadow-lg overflow-hidden">
+              <thead>
+                <tr>
+                  <th className="border p-2 bg-green-50 sticky left-0 z-10"></th>
+                  {featureNames.map(name => (
+                    <th
+                      key={name}
+                      className="border p-2 bg-green-50 text-xs rotate-[-35deg] whitespace-nowrap"
+                      style={{ height: '54px', verticalAlign: 'bottom', minWidth: 48, fontWeight: 700 }}
+                    >
+                      <div>{formatFeatureName(name)}</div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {featureNames.map(rowName => (
+                  <tr key={rowName}>
+                    <th className="border p-2 bg-green-50 text-xs text-left w-32 sticky left-0 z-10 font-semibold">
+                      {formatFeatureName(rowName)}
+                    </th>
+                    {featureNames.map(colName => {
+                      const point = correlationData.find(d => d.x === colName && d.y === rowName);
+                      const value = point ? point.value : 0;
+                      // dim diagonal (self) and highlight highest values
+                      const isDiagonal = colName === rowName;
+                      return (
+                        <td
+                          key={`${rowName}-${colName}`}
+                          className={`
+                            border p-0 relative group text-center font-semibold align-middle w-10 h-10
+                            ${isDiagonal ? "opacity-70 bg-gray-100" : ""}
+                          `}
+                          style={{ backgroundColor: getColor(value) }}
                         >
-                          <div className="ml-2">{formatFeatureName(name)}</div>
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {featureNames.map(rowName => (
-                      <tr key={rowName}>
-                        <th className="border p-1 bg-green-50 text-xs text-left w-24">
-                          {formatFeatureName(rowName)}
-                        </th>
-                        {featureNames.map(colName => {
-                          const point = data.find(d => d.x === colName && d.y === rowName);
-                          const value = point ? point.value : 0;
-                          return (
-                            <td 
-                              key={`${rowName}-${colName}`} 
-                              className="border p-0 relative group w-10 h-10 text-center"
-                              style={{ backgroundColor: getColor(value) }}
-                            >
-                              <div className="opacity-0 group-hover:opacity-100 absolute bg-black text-white p-1 rounded text-xs -mt-8 left-1/2 transform -translate-x-1/2 z-10">
-                                {formatFeatureName(rowName)} × {formatFeatureName(colName)}: {value.toFixed(2)}
-                              </div>
-                              <span className="text-xs font-medium">
-                                {value === 1 ? "1" : value.toFixed(1)}
-                              </span>
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                          {!isDiagonal ? (
+                            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-medium">
+                              <span className="">{Math.abs(value) === 1 ? "1" : value.toFixed(2)}</span>
+                            </div>
+                          ) : (
+                            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xs opacity-70 font-normal">
+                              —
+                            </div>
+                          )}
+                          {/* Tooltip */}
+                          <div className="opacity-0 group-hover:opacity-100 absolute -top-9 left-1/2 transform -translate-x-1/2 bg-black text-white px-2 py-1 rounded text-xs z-20 whitespace-nowrap pointer-events-none"
+                            style={{ fontSize: 12 }}
+                          >
+                            {formatFeatureName(rowName)} × {formatFeatureName(colName)}: {value.toFixed(2)}
+                          </div>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="flex flex-row justify-end gap-4 mt-4 px-2">
+              <div className="flex items-center gap-2">
+                <span className="block h-4 w-8 rounded bg-[#15803d] border border-gray-200"></span>
+                <span className="text-xs text-gray-600">Strong positive</span>
+                <span className="block h-4 w-8 rounded bg-[#f3f4f6] border border-gray-200 mx-2"></span>
+                <span className="text-xs text-gray-600">Neutral</span>
+                <span className="block h-4 w-8 rounded bg-[#f87171] border border-gray-200 mx-2"></span>
+                <span className="text-xs text-gray-600">Strong negative</span>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </CardContent>
