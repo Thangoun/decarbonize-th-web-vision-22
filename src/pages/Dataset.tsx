@@ -11,7 +11,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -28,26 +27,112 @@ import { Database, Filter, CircleCheck, AlertCircle, Info, FileText, LineChart, 
 
 // Import new components
 import ThailandTrendDashboard from "@/components/dataset/ThailandTrendDashboard";
-import MissingValuesDiagnostic from "@/components/dataset/MissingValuesDiagnostic";
 import YearlyMissingRatio from "@/components/dataset/YearlyMissingRatio";
 import DatasetSplitSummary from "@/components/dataset/DatasetSplitSummary";
 
 const Dataset = () => {
   const [showPreprocessing, setShowPreprocessing] = useState(false);
 
-  // Sample data for visualization
+  // Current sample cleaned data, as requested
   const cleanedData = [
-    { year: 1950, co2: 25.3, energy: 42.1, population: 20.1 },
-    { year: 1960, co2: 45.7, energy: 68.4, population: 27.3 },
-    { year: 1970, co2: 78.2, energy: 112.6, population: 36.9 },
-    { year: 1980, co2: 134.5, energy: 187.3, population: 47.4 },
-    { year: 1990, co2: 205.8, energy: 278.9, population: 56.6 },
-    { year: 2000, co2: 298.4, energy: 389.5, population: 62.7 },
-    { year: 2010, co2: 367.2, energy: 487.6, population: 67.2 },
-    { year: 2020, co2: 412.6, energy: 534.8, population: 69.8 }
+    {
+      year: 2019,
+      population: 71522265.0,
+      gdp: 1149130637312.0,
+      cement_co2_per_capita: 0.312,
+      co2_growth_abs: -6.427,
+      co2_including_luc_growth_abs: -8.991,
+      co2_including_luc_per_gdp: 0.278,
+      co2_including_luc_per_unit_energy: 0.216,
+      co2_per_gdp: 0.245,
+      co2_per_unit_energy: 0.19,
+      coal_co2_per_capita: 0.98,
+      energy_per_capita: 20751.527,
+      flaring_co2_per_capita: 0.008,
+      nitrous_oxide_per_capita: 0.33,
+      temperature_change_from_n2o: 0.001,
+      country: "Thailand",
+      co2: 281.877,
+    },
+    {
+      year: 2020,
+      population: 71641484.0,
+      gdp: 1078332620800.0,
+      cement_co2_per_capita: 0.306,
+      co2_growth_abs: -9.954,
+      co2_including_luc_growth_abs: -11.755,
+      co2_including_luc_per_gdp: 0.285,
+      co2_including_luc_per_unit_energy: 0.223,
+      co2_per_gdp: 0.252,
+      co2_per_unit_energy: 0.198,
+      coal_co2_per_capita: 1.044,
+      energy_per_capita: 19247.928,
+      flaring_co2_per_capita: 0.008,
+      nitrous_oxide_per_capita: 0.341,
+      temperature_change_from_n2o: 0.001,
+      country: "Thailand",
+      co2: 271.923,
+    },
+    {
+      year: 2021,
+      population: 71727340.0,
+      gdp: 1095187103744.0,
+      cement_co2_per_capita: 0.295,
+      co2_growth_abs: -4.781,
+      co2_including_luc_growth_abs: -5.507,
+      co2_including_luc_per_gdp: 0.276,
+      co2_including_luc_per_unit_energy: 0.218,
+      co2_per_gdp: 0.244,
+      co2_per_unit_energy: 0.193,
+      coal_co2_per_capita: 1.069,
+      energy_per_capita: 19368.557,
+      flaring_co2_per_capita: 0.007,
+      nitrous_oxide_per_capita: 0.337,
+      temperature_change_from_n2o: 0.001,
+      country: "Thailand",
+      co2: 267.142,
+    },
+    {
+      year: 2022,
+      population: 71735320.0,
+      gdp: 1124143726592.0,
+      cement_co2_per_capita: 0.293,
+      co2_growth_abs: 5.432,
+      co2_including_luc_growth_abs: 4.502,
+      co2_including_luc_per_gdp: 0.273,
+      co2_including_luc_per_unit_energy: 0.221,
+      co2_per_gdp: 0.242,
+      co2_per_unit_energy: 0.196,
+      coal_co2_per_capita: 0.973,
+      energy_per_capita: 19357.754,
+      flaring_co2_per_capita: 0.006,
+      nitrous_oxide_per_capita: 0.339,
+      temperature_change_from_n2o: 0.001,
+      country: "Thailand",
+      co2: 272.573,
+    },
+    {
+      year: 2023,
+      population: 71702438.0,
+      gdp: 1124143726592.0,
+      cement_co2_per_capita: 0.268,
+      co2_growth_abs: -8.185,
+      co2_including_luc_growth_abs: -8.996,
+      co2_including_luc_per_gdp: 0.273,
+      co2_including_luc_per_unit_energy: 0.214,
+      co2_per_gdp: 0.242,
+      co2_per_unit_energy: 0.19,
+      coal_co2_per_capita: 0.827,
+      energy_per_capita: 19370.299,
+      flaring_co2_per_capita: 0.006,
+      nitrous_oxide_per_capita: 0.339,
+      temperature_change_from_n2o: 0.001,
+      country: "Thailand",
+      co2: 264.389,
+    },
   ];
 
-  // Data cleaning steps based on actual notebook logic
+  // Updated cleaning steps (remove quality assurance)
   const cleaningSteps = [
     {
       title: "Initial Data Loading & Filtering",
@@ -60,15 +145,9 @@ const Dataset = () => {
     },
     {
       title: "Feature Selection",
-      description: "Core variables tracked for analysis",
+      description: "Selected columns",
       details: [
-        "Year and country identifiers",
-        "Population statistics",
-        "GDP indicators",
-        "Primary energy consumption",
-        "CO₂ emissions (oil, coal, total)",
-        "Total greenhouse gas emissions",
-        "Temperature change metrics"
+        "population, gdp, cement_co2_per_capita, co2_growth_abs, co2_including_luc_growth_abs, co2_including_luc_per_gdp, co2_including_luc_per_unit_energy, co2_per_gdp, co2_per_unit_energy, coal_co2_per_capita, energy_per_capita, flaring_co2_per_capita, nitrous_oxide_per_capita, temperature_change_from_n2o, co2"
       ]
     },
     {
@@ -80,20 +159,10 @@ const Dataset = () => {
         "Use backward-fill for remaining gaps",
         "Validate completeness of key indicators"
       ]
-    },
-    {
-      title: "Quality Assurance",
-      description: "Data validation and outlier review",
-      details: [
-        "Visual inspection of boxplots for key features",
-        "Review of value distributions",
-        "No outlier transformations applied",
-        "Maintain original scale of measurements"
-      ]
     }
   ];
 
-  // Create fade-in animation for sections
+  // Animation config
   const fadeIn = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
@@ -113,15 +182,24 @@ const Dataset = () => {
             <Database className="h-8 w-8 text-green-600" />
           </div>
           <h1 className="text-4xl font-bold text-green-800 mb-6">Dataset Overview</h1>
-          <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-8">
+          <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-4">
             Our analysis utilizes the comprehensive Our World in Data CO₂ emissions dataset, 
             covering the period from 1950 to present.
           </p>
+          <a
+            href="https://ourworldindata.org/co2-dataset-sources"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block text-green-700 hover:text-green-800 underline mb-4"
+          >
+            <span className="font-semibold underline">View original dataset on Our World in Data</span>
+          </a>
         </div>
       </motion.section>
 
       <section className="py-12">
         <div className="section-container">
+
           <Card className="mb-8">
             <CardHeader>
               <div className="flex items-center gap-2">
@@ -130,30 +208,20 @@ const Dataset = () => {
               </div>
               <CardDescription>
                 Primary dataset: owid-co2-data.csv from Our World in Data
+                <br />
+                Coverage: 1750-2023 (Thailand used only from 1950 onward due to missingness)
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h3 className="font-medium text-green-700">Key Features</h3>
-                  <ul className="list-disc pl-5 space-y-2 text-gray-600">
-                    <li>CO₂ emissions data (total, by source)</li>
-                    <li>Greenhouse gas measurements</li>
-                    <li>Economic indicators (GDP)</li>
-                    <li>Energy consumption metrics</li>
-                    <li>Population statistics</li>
-                    <li>Temperature change data</li>
-                  </ul>
-                </div>
-                <div className="space-y-4">
-                  <h3 className="font-medium text-green-700">Coverage</h3>
-                  <ul className="list-disc pl-5 space-y-2 text-gray-600">
-                    <li>Time period: 1950 - Present</li>
-                    <li>Country-level granularity</li>
-                    <li>Annual measurements</li>
-                    <li>Consistent ISO country codes</li>
-                  </ul>
-                </div>
+              <div className="flex flex-col items-start space-y-2">
+                <a
+                  href="https://ourworldindata.org/co2-dataset-sources"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block text-green-700 hover:text-green-800 underline"
+                >
+                  <span className="font-semibold underline">💾 Link to OWID - World Carbon Data</span>
+                </a>
               </div>
             </CardContent>
           </Card>
@@ -161,11 +229,6 @@ const Dataset = () => {
           {/* Thailand Trend Dashboard */}
           <motion.div {...fadeIn}>
             <ThailandTrendDashboard />
-          </motion.div>
-
-          {/* Missing Values Diagnostics */}
-          <motion.div {...fadeIn}>
-            <MissingValuesDiagnostic />
           </motion.div>
 
           {/* Yearly Missing Ratio */}
@@ -194,10 +257,6 @@ const Dataset = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-3 bg-green-50 rounded">
-                      <span>Missing Value Treatment</span>
-                      <span className="text-green-600">Complete</span>
-                    </div>
                     <div className="flex items-center justify-between p-3 bg-green-50 rounded">
                       <span>Time Range Filter</span>
                       <span className="text-green-600">Applied</span>
@@ -237,7 +296,7 @@ const Dataset = () => {
                     </Card>
                     <Card className="bg-green-50/50 p-4 flex flex-col items-center justify-center">
                       <BarChart3 className="h-8 w-8 text-green-600 mb-2" />
-                      <h3 className="font-medium text-green-700 text-center">15 Key Features</h3>
+                      <h3 className="font-medium text-green-700 text-center">Key Features</h3>
                       <p className="text-sm text-gray-600 text-center">Carefully selected variables</p>
                     </Card>
                     <Card className="bg-green-50/50 p-4 flex flex-col items-center justify-center">
@@ -309,18 +368,42 @@ const Dataset = () => {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Year</TableHead>
-                        <TableHead>CO₂ Emissions</TableHead>
-                        <TableHead>Energy Consumption</TableHead>
                         <TableHead>Population</TableHead>
+                        <TableHead>GDP</TableHead>
+                        <TableHead>Cement CO₂/Capita</TableHead>
+                        <TableHead>CO₂ Growth Abs</TableHead>
+                        <TableHead>CO₂+LUC Growth Abs</TableHead>
+                        <TableHead>CO₂+LUC/GDP</TableHead>
+                        <TableHead>CO₂+LUC/Energy</TableHead>
+                        <TableHead>CO₂/GDP</TableHead>
+                        <TableHead>CO₂/Energy</TableHead>
+                        <TableHead>Coal CO₂/Capita</TableHead>
+                        <TableHead>Energy/Capita</TableHead>
+                        <TableHead>Flaring CO₂/Capita</TableHead>
+                        <TableHead>N₂O/Capita</TableHead>
+                        <TableHead>Temp Δ from N₂O</TableHead>
+                        <TableHead>CO₂</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {cleanedData.map((row, index) => (
                         <TableRow key={index}>
                           <TableCell>{row.year}</TableCell>
+                          <TableCell>{row.population.toLocaleString()}</TableCell>
+                          <TableCell>{row.gdp.toExponential(3)}</TableCell>
+                          <TableCell>{row.cement_co2_per_capita}</TableCell>
+                          <TableCell>{row.co2_growth_abs}</TableCell>
+                          <TableCell>{row.co2_including_luc_growth_abs}</TableCell>
+                          <TableCell>{row.co2_including_luc_per_gdp}</TableCell>
+                          <TableCell>{row.co2_including_luc_per_unit_energy}</TableCell>
+                          <TableCell>{row.co2_per_gdp}</TableCell>
+                          <TableCell>{row.co2_per_unit_energy}</TableCell>
+                          <TableCell>{row.coal_co2_per_capita}</TableCell>
+                          <TableCell>{row.energy_per_capita}</TableCell>
+                          <TableCell>{row.flaring_co2_per_capita}</TableCell>
+                          <TableCell>{row.nitrous_oxide_per_capita}</TableCell>
+                          <TableCell>{row.temperature_change_from_n2o}</TableCell>
                           <TableCell>{row.co2}</TableCell>
-                          <TableCell>{row.energy}</TableCell>
-                          <TableCell>{row.population}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

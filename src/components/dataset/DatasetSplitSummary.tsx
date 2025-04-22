@@ -4,13 +4,18 @@ import {
   PieChart,
   Pie,
   Cell,
-  Legend,
   ResponsiveContainer,
-  Tooltip
 } from 'recharts';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { datasetSplitData } from "@/utils/thailandData";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
+
+// Updated split numbers
+const datasetSplitData = [
+  { split: "Global Train (World excl. ASEAN + Thailand)", rows: 2350 },
+  { split: "ASEAN Train (60%)", rows: 680 },
+  { split: "ASEAN Val (40%)", rows: 455 },
+  { split: "Thailand Test", rows: 73 }
+];
 
 const COLORS = ['#16a34a', '#22c55e', '#4ade80', '#86efac'];
 
@@ -32,7 +37,7 @@ const DatasetSplitSummary = () => {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="h-[350px]">
+          <div className="h-[250px]">
             <ChartContainer
               config={{
                 rows: {
@@ -46,8 +51,8 @@ const DatasetSplitSummary = () => {
                   data={datasetSplitData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={70}
-                  outerRadius={120}
+                  innerRadius={60}
+                  outerRadius={95}
                   fill="#8884d8"
                   paddingAngle={2}
                   dataKey="rows"
@@ -60,7 +65,7 @@ const DatasetSplitSummary = () => {
                   ))}
                 </Pie>
                 <ChartTooltip 
-                  formatter={(value) => `${value} rows`}
+                  formatter={(value: number) => `${value} rows`}
                 />
               </PieChart>
             </ChartContainer>

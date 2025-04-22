@@ -23,7 +23,8 @@ const YearlyMissingRatio = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-[350px]">
+        {/* Reduced chart height for better sizing */}
+        <div className="h-[250px]">
           <ChartContainer
             config={{
               missing_ratio: {
@@ -34,7 +35,7 @@ const YearlyMissingRatio = () => {
           >
             <LineChart 
               data={missingRatioByYear}
-              margin={{ top: 20, right: 30, left: 20, bottom: 50 }}
+              margin={{ top: 20, right: 30, left: 20, bottom: 45 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
@@ -45,11 +46,11 @@ const YearlyMissingRatio = () => {
                 interval={2}
               />
               <YAxis 
-                tickFormatter={(value) => `${(value * 100).toFixed(0)}%`}
+                tickFormatter={(value: number) => `${(value * 100).toFixed(0)}%`}
                 domain={[0, 1]}
               />
               <ChartTooltip
-                formatter={(value) => `${(Number(value) * 100).toFixed(2)}%`}
+                formatter={(value: number) => `${(Number(value) * 100).toFixed(2)}%`}
               />
               <Line 
                 type="monotone" 
