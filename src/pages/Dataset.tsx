@@ -2,8 +2,12 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { 
-  Card, CardContent, CardDescription, CardHeader, CardTitle 
-} from "@/components/ui/card";
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -12,9 +16,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RChartTooltip, Legend as RChartLegend } from 'recharts';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
+import { Database, Filter, CircleCheck, Info, FileText, LineChart, BarChart3, PieChart } from "lucide-react";
 
-// Your provided cleaned sample records
+// --- New chart cards for maintainability
+import ThailandTrendDashboardCard from "@/components/dataset/ThailandTrendDashboardCard";
+import YearlyMissingRatioCard from "@/components/dataset/YearlyMissingRatioCard";
+
+// --- USE: latest requested "sample cleaned records"
 const cleanedData = [
   {
     year: 1950, population: 20428403.0, gdp: 26094198784.0, cement_co2_per_capita: 0.004, co2_growth_abs: 0.894,
@@ -53,217 +68,283 @@ const cleanedData = [
   },
 ];
 
-// PIE CHART and SPLIT DATA
-const splitData = [
-  { name: "Global Train", value: 15392 },
-  { name: "ASEAN Train", value: 399 },
-  { name: "ASEAN Val", value: 267 },
-  { name: "Thailand Test", value: 74 }
+const cleaningSteps = [
+  {
+    title: "Initial Data Loading & Filtering",
+    description: "Source: Our World in Data CO₂ Dataset",
+    details: [
+      "Filter records from 1950 onward only",
+      "Remove region-level aggregates by filtering to valid ISO-3 country codes",
+      "Select relevant features for analysis"
+    ]
+  },
+  {
+    title: "Feature Selection",
+    description: "Features selected using VIF threshold.",
+    details: [
+      "population, gdp, cement_co2_per_capita, co2_growth_abs, co2_including_luc_growth_abs, co2_including_luc_per_gdp, co2_including_luc_per_unit_energy, co2_per_gdp, co2_per_unit_energy, coal_co2_per_capita, energy_per_capita, flaring_co2_per_capita, nitrous_oxide_per_capita, temperature_change_from_n2o, co2"
+    ]
+  },
+  {
+    title: "Missing Value Treatment",
+    description: "Systematic approach to handle gaps in data",
+    details: [
+      "Drop columns with >50% missing values (post-1950)",
+      "Apply forward-fill within each country group",
+      "Use backward-fill for remaining gaps",
+      "Validate completeness of key indicators"
+    ]
+  }
 ];
-const COLORS = ['#16a34a', '#4ade80', '#93c5fd', '#f9a8d4'];
 
-const cleaningStepsFlow = [
-  "Filter records from 1950 onward",
-  "Remove aggregates (non-country codes)",
-  "Drop columns with >50% missing",
-  "Forward-fill missing values per country",
-  "Backward-fill remaining gaps",
-  "Validate country code completeness",
-];
-
-// For the fade-in animation
+// Animation config
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6 },
+  transition: { duration: 0.6 }
 };
 
-const Dataset = () => (
-  <div className="min-h-screen bg-green-50/30">
-    <motion.section 
-      className="relative py-12 bg-gradient-to-b from-green-50 to-white overflow-hidden"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.6 }}
-    >
-      <div className="section-container text-center">
-        <div className="inline-block p-2 bg-green-100 rounded-full mb-4">
-          <img src="/lovable-uploads/e3297e2a-7c19-40bd-8d98-3f907a9e1bcc.png" alt="Thailand Trend" className="h-8 w-8 object-contain" />
+const Dataset = () => {
+  const [showPreprocessing, setShowPreprocessing] = useState(false);
+
+  return (
+    <div className="min-h-screen bg-green-50/30">
+      <motion.section 
+        className="relative py-12 bg-gradient-to-b from-green-50 to-white overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="section-container text-center">
+          <div className="inline-block p-2 bg-green-100 rounded-full mb-4">
+            <Database className="h-8 w-8 text-green-600" />
+          </div>
+          <h1 className="text-4xl font-bold text-green-800 mb-6">Dataset Overview</h1>
+          <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-4">
+            Our analysis utilizes the comprehensive Our World in Data CO₂ emissions dataset, 
+            covering the period from 1750 to 2023 (used only from 1950 onward due to missingness).
+          </p>
+          <a
+            href="https://ourworldindata.org/co2-dataset-sources"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block text-green-700 hover:text-green-800 underline mb-4"
+          >
+            <span className="font-semibold underline">View original dataset on Our World in Data</span>
+          </a>
         </div>
-        <h1 className="text-4xl font-bold text-green-800 mb-4">Dataset Overview</h1>
-        <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-3">
-          Comprehensive Our World in Data CO₂ emissions dataset.
-        </p>
-        <span className="inline-flex text-sm mb-2 px-3 py-1 bg-gray-50 border border-green-100 rounded-full text-green-700 font-medium">
-          Coverage: 1750-2023 (used only from 1950 onward due to missingness)
-        </span>
-        <a
-          href="https://ourworldindata.org/co2-dataset-sources"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block text-green-700 hover:text-green-800 underline mb-1"
-        >
-          <span className="font-semibold underline">View full dataset &amp; documentation</span>
-        </a>
-      </div>
-    </motion.section>
+      </motion.section>
 
-    {/* Slimmer Pie Chart Split */}
-    <section className="py-2">
-      <div className="section-container">
-        <Card className="mb-6">
-          <CardHeader className="pb-1 flex flex-row items-center gap-3">
-            <PieChart className="w-5 h-5 text-green-600" />
-            <CardTitle className="text-xl text-green-700">
-              Train-Validation-Test Split
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0 flex flex-col md:flex-row md:items-center md:gap-4">
-            <div className="w-full md:w-[240px] h-[140px] md:h-[160px] mx-auto">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={splitData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={30}
-                    outerRadius={55}
-                    fill="#22c55e"
-                    paddingAngle={3}
-                    dataKey="value"
-                    label={({ index }) => splitData[index].name}
-                    labelLine={false}
-                  >
-                    {splitData.map((entry, idx) => (
-                      <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
+      <section className="py-8 bg-green-50/30">
+        <div className="section-container">
+
+          {/* Dashboard + Missing Ratio on grid w/ responsive adjustment */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 mb-8">
+            <motion.div {...fadeIn} className="col-span-1">
+              <ThailandTrendDashboardCard />
+            </motion.div>
+            <motion.div {...fadeIn} className="col-span-1">
+              <YearlyMissingRatioCard />
+            </motion.div>
+          </div>
+
+          {/* Dataset Split Summary */}
+          <motion.div {...fadeIn} className="mb-8">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xl text-green-700">Train-Validation-Test Split</CardTitle>
+                <CardDescription>
+                  Row Counts by Dataset Split
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Split</TableHead>
+                        <TableHead className="text-right">Rows</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>Global Train (World excl. ASEAN + Thailand)</TableCell>
+                        <TableCell className="text-right">15,392</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>ASEAN Train (60%)</TableCell>
+                        <TableCell className="text-right">399</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>ASEAN Val (40%)</TableCell>
+                        <TableCell className="text-right">267</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Thailand Test</TableCell>
+                        <TableCell className="text-right">74</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Status + Overview: adjust grid */}
+          <div className="grid md:grid-cols-2 gap-8 mb-12">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+            >
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <CircleCheck className="h-5 w-5 text-green-600" />
+                    <CardTitle className="text-green-700">Data Quality Status</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-green-50 rounded">
+                      <span>Country Code Validation</span>
+                      <span className="text-green-600">Verified</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <BarChart3 className="h-8 w-8 text-green-600 mb-2" />
+                    <CardTitle className="text-green-700">Feature Selection</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div>
+                    <div className="font-medium text-green-700 mb-1">
+                      Features selected using VIF threshold
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      population, gdp, cement_co2_per_capita, co2_growth_abs, co2_including_luc_growth_abs, co2_including_luc_per_gdp, co2_including_luc_per_unit_energy, co2_per_gdp, co2_per_unit_energy, coal_co2_per_capita, energy_per_capita, flaring_co2_per_capita, nitrous_oxide_per_capita, temperature_change_from_n2o, co2
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Data Preprocessing Steps */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-5 w-5 text-green-600" />
+                  <CardTitle className="text-green-700">Data Preprocessing Steps</CardTitle>
+                </div>
+                <Button
+                  onClick={() => setShowPreprocessing(!showPreprocessing)}
+                  variant="outline"
+                  className="text-green-700 border-green-600"
+                >
+                  {showPreprocessing ? 'Hide Details' : 'Show Details'}
+                </Button>
+              </div>
+              <CardDescription>
+                Systematic approach to prepare the dataset for analysis
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {showPreprocessing && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Accordion type="single" collapsible className="w-full">
+                    {cleaningSteps.map((step, index) => (
+                      <AccordionItem key={index} value={`step-${index}`}>
+                        <AccordionTrigger className="text-green-700 hover:text-green-800">
+                          {step.title}
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <p className="mb-3 text-gray-700">{step.description}</p>
+                          <ul className="space-y-2 pl-5 list-disc text-gray-600">
+                            {step.details.map((detail, idx) => (
+                              <li key={idx}>{detail}</li>
+                            ))}
+                          </ul>
+                        </AccordionContent>
+                      </AccordionItem>
                     ))}
-                  </Pie>
-                  <RChartTooltip formatter={v => `${v} rows`} />
-                  <RChartLegend verticalAlign="bottom" height={24} iconType="circle" />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="w-full md:w-auto mt-4 md:mt-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Split</TableHead>
-                    <TableHead className="text-right">Rows</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>Global Train (World excl. ASEAN + Thailand)</TableCell>
-                    <TableCell className="text-right">15,392</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>ASEAN Train (60%)</TableCell>
-                    <TableCell className="text-right">399</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>ASEAN Val (40%)</TableCell>
-                    <TableCell className="text-right">267</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Thailand Test</TableCell>
-                    <TableCell className="text-right">74</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </section>
+                  </Accordion>
+                </motion.div>
+              )}
 
-    {/* Data Preprocessing Pipeline as Flow */}
-    <section className="pb-4">
-      <div className="section-container">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-green-700 text-lg">Data Preprocessing Pipeline</CardTitle>
-            <CardDescription>
-              Sequential steps for preparing the dataset before model training
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2 items-center justify-center py-2">
-              {cleaningStepsFlow.map((step, idx) => (
-                <span key={step} className="flex items-center gap-1">
-                  <span className="inline-block px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-medium">{step}</span>
-                  {idx < cleaningStepsFlow.length - 1 && (
-                    <span className="mx-1 text-green-400 text-lg font-bold">&#8594;</span>
-                  )}
-                </span>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </section>
-
-    {/*--- Sample Cleaned Records ---*/}
-    <section className="pb-9">
-      <div className="section-container">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg text-green-700">Sample Cleaned Records</CardTitle>
-            <CardDescription>
-              Example rows after preprocessing (first five years)
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto max-w-full">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Year</TableHead>
-                    <TableHead>Population</TableHead>
-                    <TableHead>GDP</TableHead>
-                    <TableHead>Cement CO₂/Capita</TableHead>
-                    <TableHead>CO₂ Growth Abs</TableHead>
-                    <TableHead>CO₂+LUC Growth Abs</TableHead>
-                    <TableHead>CO₂+LUC/GDP</TableHead>
-                    <TableHead>CO₂+LUC/Energy</TableHead>
-                    <TableHead>CO₂/GDP</TableHead>
-                    <TableHead>CO₂/Energy</TableHead>
-                    <TableHead>Coal CO₂/Capita</TableHead>
-                    <TableHead>Energy/Capita</TableHead>
-                    <TableHead>Flaring CO₂/Capita</TableHead>
-                    <TableHead>N₂O/Capita</TableHead>
-                    <TableHead>Temp Δ N₂O</TableHead>
-                    <TableHead>CO₂</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {cleanedData.map((row, i) => (
-                    <TableRow key={i}>
-                      <TableCell>{row.year}</TableCell>
-                      <TableCell>{row.population.toLocaleString()}</TableCell>
-                      <TableCell>{row.gdp.toExponential(2)}</TableCell>
-                      <TableCell>{row.cement_co2_per_capita}</TableCell>
-                      <TableCell>{row.co2_growth_abs}</TableCell>
-                      <TableCell>{row.co2_including_luc_growth_abs}</TableCell>
-                      <TableCell>{row.co2_including_luc_per_gdp}</TableCell>
-                      <TableCell>{row.co2_including_luc_per_unit_energy}</TableCell>
-                      <TableCell>{row.co2_per_gdp}</TableCell>
-                      <TableCell>{row.co2_per_unit_energy}</TableCell>
-                      <TableCell>{row.coal_co2_per_capita}</TableCell>
-                      <TableCell>{row.energy_per_capita}</TableCell>
-                      <TableCell>{row.flaring_co2_per_capita}</TableCell>
-                      <TableCell>{row.nitrous_oxide_per_capita}</TableCell>
-                      <TableCell>{row.temperature_change_from_n2o}</TableCell>
-                      <TableCell>{row.co2}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </section>
-  </div>
-);
+              <div className="mt-8">
+                <h3 className="text-lg font-medium text-green-700 mb-4">Sample Cleaned Records</h3>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Year</TableHead>
+                        <TableHead>Population</TableHead>
+                        <TableHead>GDP</TableHead>
+                        <TableHead>Cement CO₂/Capita</TableHead>
+                        <TableHead>CO₂ Growth Abs</TableHead>
+                        <TableHead>CO₂+LUC Growth Abs</TableHead>
+                        <TableHead>CO₂+LUC/GDP</TableHead>
+                        <TableHead>CO₂+LUC/Energy</TableHead>
+                        <TableHead>CO₂/GDP</TableHead>
+                        <TableHead>CO₂/Energy</TableHead>
+                        <TableHead>Coal CO₂/Capita</TableHead>
+                        <TableHead>Energy/Capita</TableHead>
+                        <TableHead>Flaring CO₂/Capita</TableHead>
+                        <TableHead>N₂O/Capita</TableHead>
+                        <TableHead>Temp Δ from N₂O</TableHead>
+                        <TableHead>CO₂</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {cleanedData.map((row, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{row.year}</TableCell>
+                          <TableCell>{row.population.toLocaleString()}</TableCell>
+                          <TableCell>{row.gdp.toExponential(3)}</TableCell>
+                          <TableCell>{row.cement_co2_per_capita}</TableCell>
+                          <TableCell>{row.co2_growth_abs}</TableCell>
+                          <TableCell>{row.co2_including_luc_growth_abs}</TableCell>
+                          <TableCell>{row.co2_including_luc_per_gdp}</TableCell>
+                          <TableCell>{row.co2_including_luc_per_unit_energy}</TableCell>
+                          <TableCell>{row.co2_per_gdp}</TableCell>
+                          <TableCell>{row.co2_per_unit_energy}</TableCell>
+                          <TableCell>{row.coal_co2_per_capita}</TableCell>
+                          <TableCell>{row.energy_per_capita}</TableCell>
+                          <TableCell>{row.flaring_co2_per_capita}</TableCell>
+                          <TableCell>{row.nitrous_oxide_per_capita}</TableCell>
+                          <TableCell>{row.temperature_change_from_n2o}</TableCell>
+                          <TableCell>{row.co2}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+    </div>
+  );
+};
 
 export default Dataset;
