@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Leaf, Github, ExternalLink } from "lucide-react";
 
@@ -44,7 +43,7 @@ const Footer = () => {
             <ul className="mt-4 space-y-3">
               <li>
                 <a
-                  href="https://github.com"
+                  href="https://github.com/your-username/decarbonize-th"
                   className="text-base text-gray-600 hover:text-green-700 flex items-center"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -52,17 +51,6 @@ const Footer = () => {
                   <Github className="h-4 w-4 mr-2" />
                   GitHub Repository
                   <ExternalLink className="h-3 w-3 ml-1" />
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-base text-gray-600 hover:text-green-700 flex items-center"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Related Research
                 </a>
               </li>
             </ul>
