@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { 
@@ -24,12 +23,10 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Database, Filter, CircleCheck, Info, FileText, LineChart, BarChart3, PieChart } from "lucide-react";
-
-// --- New chart cards for maintainability
 import ThailandTrendDashboardCard from "@/components/dataset/ThailandTrendDashboardCard";
 import YearlyMissingRatioCard from "@/components/dataset/YearlyMissingRatioCard";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
-// --- USE: latest requested "sample cleaned records"
 const cleanedData = [
   {
     year: 1950, population: 20428403.0, gdp: 26094198784.0, cement_co2_per_capita: 0.004, co2_growth_abs: 0.894,
@@ -68,6 +65,13 @@ const cleanedData = [
   },
 ];
 
+const splitData = [
+  { split: "Global Train", rows: 15392, color: "#16a34a" },
+  { split: "ASEAN Train (60%)", rows: 399, color: "#22c55e" },
+  { split: "ASEAN Val (40%)", rows: 267, color: "#86efac" },
+  { split: "Thailand Test", rows: 74, color: "#4ade80" }
+];
+
 const cleaningSteps = [
   {
     title: "Initial Data Loading & Filtering",
@@ -76,13 +80,6 @@ const cleaningSteps = [
       "Filter records from 1950 onward only",
       "Remove region-level aggregates by filtering to valid ISO-3 country codes",
       "Select relevant features for analysis"
-    ]
-  },
-  {
-    title: "Feature Selection",
-    description: "Features selected using VIF threshold.",
-    details: [
-      "population, gdp, cement_co2_per_capita, co2_growth_abs, co2_including_luc_growth_abs, co2_including_luc_per_gdp, co2_including_luc_per_unit_energy, co2_per_gdp, co2_per_unit_energy, coal_co2_per_capita, energy_per_capita, flaring_co2_per_capita, nitrous_oxide_per_capita, temperature_change_from_n2o, co2"
     ]
   },
   {
@@ -97,7 +94,8 @@ const cleaningSteps = [
   }
 ];
 
-// Animation config
+const COLORS = ["#16a34a", "#22c55e", "#86efac", "#4ade80"];
+
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
@@ -148,102 +146,69 @@ const Dataset = () => {
             </motion.div>
           </div>
 
-          {/* Dataset Split Summary */}
+          {/* Train-Validation-Test Split Pie Chart */}
           <motion.div {...fadeIn} className="mb-8">
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-xl text-green-700">Train-Validation-Test Split</CardTitle>
+                <CardTitle className="text-xl text-green-700">
+                  Train-Validation-Test Split
+                </CardTitle>
                 <CardDescription>
-                  Row Counts by Dataset Split
+                  Data allocation for model training, validation, and testing
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Split</TableHead>
-                        <TableHead className="text-right">Rows</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell>Global Train (World excl. ASEAN + Thailand)</TableCell>
-                        <TableCell className="text-right">15,392</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>ASEAN Train (60%)</TableCell>
-                        <TableCell className="text-right">399</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>ASEAN Val (40%)</TableCell>
-                        <TableCell className="text-right">267</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>Thailand Test</TableCell>
-                        <TableCell className="text-right">74</TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
+                <div className="w-full flex flex-col items-center justify-center">
+                  <div className="w-full md:w-2/3 h-72 mx-auto">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={splitData}
+                          dataKey="rows"
+                          nameKey="split"
+                          cx="50%"
+                          cy="45%"
+                          innerRadius={60}
+                          outerRadius={90}
+                          paddingAngle={2}
+                          label={({ name, percent }) =>
+                            `${name}: ${(percent * 100).toFixed(1)}%`
+                          }
+                          labelLine={false}
+                        >
+                          {splitData.map((entry, idx) => (
+                            <Cell key={`cell-${idx}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value) => `${value} rows`} />
+                        <Legend align="center" verticalAlign="bottom" />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="w-full md:w-2/3 mt-4">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Split</TableHead>
+                          <TableHead className="text-right">Rows</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {splitData.map((row, idx) => (
+                          <TableRow key={idx}>
+                            <TableCell>{row.split}</TableCell>
+                            <TableCell className="text-right">{row.rows.toLocaleString()}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           </motion.div>
 
-          {/* Status + Overview: adjust grid */}
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-            >
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <CircleCheck className="h-5 w-5 text-green-600" />
-                    <CardTitle className="text-green-700">Data Quality Status</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-3 bg-green-50 rounded">
-                      <span>Country Code Validation</span>
-                      <span className="text-green-600">Verified</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              viewport={{ once: true }}
-            >
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <BarChart3 className="h-8 w-8 text-green-600 mb-2" />
-                    <CardTitle className="text-green-700">Feature Selection</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div>
-                    <div className="font-medium text-green-700 mb-1">
-                      Features selected using VIF threshold
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      population, gdp, cement_co2_per_capita, co2_growth_abs, co2_including_luc_growth_abs, co2_including_luc_per_gdp, co2_including_luc_per_unit_energy, co2_per_gdp, co2_per_unit_energy, coal_co2_per_capita, energy_per_capita, flaring_co2_per_capita, nitrous_oxide_per_capita, temperature_change_from_n2o, co2
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-
-          {/* Data Preprocessing Steps */}
+          {/* Data Preprocessing Steps as flow/pipeline */}
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -264,6 +229,21 @@ const Dataset = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {/* Flow pipeline style: horizontal (desktop), vertical (mobile) */}
+              <div className="flex flex-col md:flex-row items-center md:justify-evenly mb-8">
+                {cleaningSteps.map((step, stepIdx) => (
+                  <div key={step.title} className="flex flex-col items-center md:w-1/3">
+                    <div className="rounded-full bg-green-100 p-4 mb-2">
+                      <Info className="text-green-600 w-6 h-6" />
+                    </div>
+                    <span className="font-semibold text-green-700">{step.title}</span>
+                    {stepIdx < cleaningSteps.length - 1 && (
+                      <div className="hidden md:block h-1 w-12 bg-green-200 mt-2 mb-2"></div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
               {showPreprocessing && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
