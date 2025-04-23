@@ -72,7 +72,6 @@ const FeatureCorrelationTable: React.FC<FeatureCorrelationTableProps> = ({ class
                     {sortBy === "correlation" && (sortDir === "asc" ? <ArrowUpIcon className="inline h-4 w-4" /> : <ArrowDownIcon className="inline h-4 w-4" />)}
                   </span>
                 </TableHead>
-                <TableHead>Description</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -88,7 +87,6 @@ const FeatureCorrelationTable: React.FC<FeatureCorrelationTableProps> = ({ class
                       {feature.correlation.toFixed(2)}
                     </Badge>
                   </TableCell>
-                  <TableCell className="p-3 align-middle text-gray-700 text-sm">{feature.description}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -99,3 +97,4 @@ const FeatureCorrelationTable: React.FC<FeatureCorrelationTableProps> = ({ class
   );
 };
 export default FeatureCorrelationTable;
+
