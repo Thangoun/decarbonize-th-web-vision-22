@@ -1,6 +1,6 @@
+
 import { motion } from "framer-motion";
 import { BarChart3 } from "lucide-react";
-import ModelTabs from "@/components/models/ModelTabs";
 
 const modelDataHardcoded = [
   {
@@ -8,39 +8,37 @@ const modelDataHardcoded = [
     name: "XGBoost",
     rmse: 5.8318,
     mae: 3.9081,
-    r2: 0.9968
+    r2: 0.9968,
   },
   {
     id: "random_forest",
     name: "Random Forest",
     rmse: 5.9307,
     mae: 4.2114,
-    r2: 0.9967
+    r2: 0.9967,
   },
   {
     id: "lightgbm",
     name: "LightGBM",
     rmse: 6.3213,
     mae: 4.2731,
-    r2: 0.9963
+    r2: 0.9963,
   },
   {
     id: "catboost",
     name: "CatBoost",
     rmse: 7.5339,
     mae: 5.1476,
-    r2: 0.9947
+    r2: 0.9947,
   },
   {
     id: "gradient_boosting",
     name: "Gradient Boosting",
     rmse: 17.1723,
     mae: 11.8765,
-    r2: 0.9726
+    r2: 0.9726,
   },
 ];
-
-// Only pass these values to ModelTabs for performance metrics; keep usage of modelData for other purposes if needed.
 
 const Models = () => {
   return (
